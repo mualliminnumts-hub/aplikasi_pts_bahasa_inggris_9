@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PTS Bahasa Inggris Kelas IX - MTs. Mu'allimin NU</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; color: #1f2937; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        
+        /* Modal Animation */
+        .modal-enter { opacity: 0; transform: scale(0.9); transition: all 0.2s ease-out; }
+        .modal-enter-active { opacity: 1; transform: scale(1); }
+        
+        /* Print Styles */
+        @media print {
+            body { background: white; }
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            #result-screen { box-shadow: none; margin: 0; padding: 0; width: 100%; }
+        }
+        
+        /* Checkbox Custom */
+        .custom-checkbox:checked + div { background-color: #10b981; border-color: #10b981; color: white; }
+        .custom-radio:checked + div { background-color: #10b981; border-color: #10b981; color: white; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <header class="bg-emerald-700 text-white shadow-md sticky top-0 z-40 no-print">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <img id="header-logo" src="https://placehold.co/100x100/047857/FFFFFF?text=NU" alt="Logo Sekolah" class="w-10 h-10 rounded-full object-cover border-2 border-white bg-white">
+                <div>
+                    <h1 class="text-sm md:text-base font-bold leading-tight">PTS Bahasa Inggris Kelas IX</h1>
+                    <p class="text-xs text-emerald-100 hidden md:block">MTs. Mu'allimin NU Kota Malang | Penyusun: Puji Linda Evita, S. Pd.</p>
+                </div>
+            </div>
+            
+            <div id="header-timer-container" class="hidden flex items-center bg-emerald-800 rounded-lg px-3 py-1 border border-emerald-600">
+                <i class="fa-regular fa-clock mr-2 text-emerald-300"></i>
+                <span id="header-timer" class="font-mono font-bold text-lg text-emerald-100">90:00</span>
+            </div>
+
+            <div id="header-user-info" class="hidden text-right">
+                <p id="student-name-display" class="font-semibold text-sm capitalize">Nama Siswa</p>
+                <p id="student-class-display" class="text-xs text-emerald-200">Kelas</p>
+            </div>
+            
+            <button id="btn-logout" class="hidden ml-4 text-emerald-200 hover:text-white transition" onclick="logout()">
+                <i class="fa-solid fa-right-from-bracket text-lg"></i>
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-grow container mx-auto px-4 py-6 md:py-8 flex justify-center items-start no-print">
+        
+        <section id="login-screen" class="w-full max-w-4xl grid md:grid-cols-2 gap-8 items-center mt-10">
+            <div class="hidden md:flex flex-col items-center justify-center text-center space-y-6">
+                <img id="main-logo" src="https://placehold.co/200x200/047857/FFFFFF?text=NU" class="w-48 h-48 rounded-full shadow-lg border-4 border-emerald-500 object-cover bg-white">
+                <div>
+                    <h2 class="text-2xl font-bold text-emerald-800 mb-2">Penilaian Tengah Semester</h2>
+                    <p class="text-gray-600 text-lg">Bahasa Inggris Kelas IX</p>
+                    <p class="text-gray-500 font-medium">MTs. Mu'allimin NU Kota Malang</p>
+                    <p class="text-sm text-gray-400 mt-2">Disusun oleh: Puji Linda Evita, S. Pd.</p>
+                </div>
+            </div>
+
+            <div class="glass-panel rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+                <div class="flex border-b">
+                    <button class="w-1/2 py-4 font-semibold text-emerald-700 border-b-2 border-emerald-600 bg-emerald-50 focus:outline-none transition tab-btn" data-target="student-login">Siswa</button>
+                    <button class="w-1/2 py-4 font-semibold text-gray-500 border-b-2 border-transparent hover:bg-gray-50 focus:outline-none transition tab-btn" data-target="admin-login">Admin/Guru</button>
+                </div>
+
+                <div class="p-6 md:p-8">
+                    <!-- Student Login Form -->
+                    <form id="student-login" class="space-y-5 login-form">
+                        <p class="text-sm text-gray-500 mb-4 bg-blue-50 p-3 rounded-md border border-blue-100 text-blue-800"><i class="fa-solid fa-circle-info mr-1"></i> Kesempatan mengerjakan maksimal 3 kali per siswa.</p>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
+                            <input type="text" id="stud-name" required class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" placeholder="Masukkan nama lengkap">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Kelas</label>
+                            <select id="stud-class" required class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition">
+                                <option value="" disabled selected>Pilih Kelas</option>
+                                <option value="IX A">IX A</option>
+                                <option value="IX B">IX B</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">No. Presensi (Password)</label>
+                            <input type="number" id="stud-presensi" required min="1" max="50" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" placeholder="Contoh: 15">
+                        </div>
+                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-lg shadow-md transition transform hover:-translate-y-0.5">Mulai Ujian</button>
+                    </form>
+
+                    <!-- Admin Login Form -->
+                    <form id="admin-login" class="space-y-5 hidden login-form">
+                        <div class="text-center mb-6">
+                            <i class="fa-solid fa-user-shield text-4xl text-emerald-600 mb-2"></i>
+                            <h3 class="text-lg font-semibold text-gray-800">Login Administrator</h3>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                            <input type="text" id="adm-user" required class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-emerald-500 outline-none transition" placeholder="Masukkan username">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                            <input type="password" id="adm-pass" required class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-emerald-500 outline-none transition" placeholder="Masukkan password">
+                        </div>
+                        <button type="submit" class="w-full bg-gray-800 hover:bg-gray-900 text-white font-semibold py-3 rounded-lg shadow-md transition">Masuk sebagai Admin</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <section id="admin-screen" class="hidden w-full max-w-5xl">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="bg-gray-800 text-white px-6 py-4 flex justify-between items-center">
+                    <h2 class="text-xl font-bold"><i class="fa-solid fa-cogs mr-2"></i> Panel Admin</h2>
+                    <span class="bg-gray-700 px-3 py-1 rounded text-sm font-mono">Mode Pengeditan</span>
+                </div>
+                
+                <div class="flex flex-col md:flex-row min-h-[500px]">
+                    <!-- Admin Sidebar -->
+                    <div class="w-full md:w-64 border-r border-gray-200 bg-gray-50 flex flex-col p-4 space-y-2">
+                        <button onclick="switchAdminTab('tab-soal')" id="btn-tab-soal" class="admin-tab-btn text-left px-4 py-3 rounded-lg bg-emerald-100 text-emerald-800 font-semibold transition"><i class="fa-solid fa-list-check mr-2 w-5"></i> Bank Soal</button>
+                        <button onclick="switchAdminTab('tab-logo')" id="btn-tab-logo" class="admin-tab-btn text-left px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 transition"><i class="fa-solid fa-image mr-2 w-5"></i> Edit Logo</button>
+                        <button onclick="switchAdminTab('tab-pwd')" id="btn-tab-pwd" class="admin-tab-btn text-left px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 transition"><i class="fa-solid fa-key mr-2 w-5"></i> Ganti Password</button>
+                        <div class="my-4 border-t border-gray-300 pt-4"></div>
+                        <button onclick="testAsStudent()" class="text-left px-4 py-3 rounded-lg bg-blue-600 text-white hover:bg-blue-700 font-semibold transition shadow-sm"><i class="fa-solid fa-play mr-2 w-5"></i> Uji Coba Soal</button>
+                    </div>
+
+                    <!-- Admin Content Area -->
+                    <div class="flex-grow p-6 bg-white overflow-y-auto max-h-[700px]">
+                        
+                        <!-- Tab: Bank Soal -->
+                        <div id="tab-soal" class="admin-tab-content block">
+                            <div class="flex justify-between items-center mb-6">
+                                <h3 class="text-2xl font-bold text-gray-800">Bank Soal PTS</h3>
+                                <div class="text-sm bg-gray-100 px-3 py-1 rounded text-gray-600">Total: 35 Soal (15 PG, 15 PGK, 5 Menjodohkan)</div>
+                            </div>
+                            <div id="admin-question-list" class="space-y-4">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+
+                        <!-- Tab: Edit Logo -->
+                        <div id="tab-logo" class="admin-tab-content hidden">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-4">Pengaturan Logo Sekolah</h3>
+                            <div class="bg-yellow-50 p-4 border border-yellow-200 rounded-lg mb-6 text-yellow-800 text-sm">
+                                <i class="fa-solid fa-triangle-exclamation mr-1"></i> Masukkan URL gambar (URL yang valid) untuk mengganti logo sekolah yang tampil di header dan halaman login.
+                            </div>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">URL Logo (Image Link)</label>
+                                    <input type="text" id="input-logo-url" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-emerald-500 focus:border-emerald-500" placeholder="https://contoh.com/logo.png">
+                                </div>
+                                <div class="flex items-center gap-4 mt-4">
+                                    <img id="preview-logo-edit" src="" class="w-20 h-20 rounded-full border-2 border-gray-200 object-cover bg-gray-100" alt="Preview Logo">
+                                    <button onclick="saveLogo()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-lg shadow transition">Simpan Logo</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tab: Ganti Password -->
+                        <div id="tab-pwd" class="admin-tab-content hidden">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-4">Ganti Password Admin</h3>
+                            <div class="max-w-md space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Password Baru</label>
+                                    <input type="password" id="input-new-pwd" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-emerald-500 focus:border-emerald-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Konfirmasi Password Baru</label>
+                                    <input type="password" id="input-confirm-pwd" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-emerald-500 focus:border-emerald-500">
+                                </div>
+                                <button onclick="saveAdminPassword()" class="bg-gray-800 hover:bg-gray-900 text-white px-6 py-2 rounded-lg shadow transition">Perbarui Password</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="exam-screen" class="hidden w-full max-w-4xl">
+            <!-- Instructions -->
+            <div id="exam-instructions" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-8 mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">Petunjuk Pengerjaan</h2>
+                <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                    <li>Berdoalah sebelum mengerjakan soal.</li>
+                    <li>Waktu pengerjaan adalah <strong>90 menit</strong>.</li>
+                    <li>Total soal berjumlah <strong>35 soal</strong> yang terdiri dari:
+                        <ul class="list-circle pl-5 mt-1 text-sm text-gray-600 space-y-1">
+                            <li>Soal 1-15: Pilihan Ganda (Pilih 1 jawaban benar)</li>
+                            <li>Soal 16-30: Pilihan Ganda Kompleks (Pilih semua jawaban yang benar)</li>
+                            <li>Soal 31-35: Menjodohkan (Pilih pasangan yang tepat di menu dropdown)</li>
+                        </ul>
+                    </li>
+                    <li>Materi yang diujikan: <em>Exploring Fauna Of Indonesia</em> dan <em>Taking Trips</em>.</li>
+                    <li>Pastikan semua soal terjawab sebelum menekan tombol <strong>Kumpulkan</strong>.</li>
+                </ul>
+                <div class="mt-8 flex justify-end">
+                    <button onclick="startExamTimer()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-3 rounded-lg shadow-lg transition transform hover:-translate-y-1">Mulai Mengerjakan <i class="fa-solid fa-arrow-right ml-2"></i></button>
+                </div>
+            </div>
+
+            <!-- The Questions (hidden initially) -->
+            <div id="exam-questions-container" class="hidden">
+                <form id="exam-form" onsubmit="submitExam(event)">
+                    <div id="questions-wrapper" class="space-y-6">
+                        <!-- Questions will be generated here by JS -->
+                    </div>
+                    <div class="mt-10 bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4 sticky bottom-4 z-30">
+                        <p class="text-sm text-gray-500"><i class="fa-solid fa-triangle-exclamation text-yellow-500 mr-1"></i> Periksa kembali jawaban Anda sebelum mengumpulkan.</p>
+                        <button type="submit" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-10 py-3 rounded-lg shadow-lg transition">Kumpulkan Ujian</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Result Screen (Independent from layout to allow clean printing) -->
+    <section id="result-screen" class="hidden min-h-screen bg-gray-100 flex items-center justify-center p-4 print-only absolute top-0 left-0 w-full z-50">
+        <div class="bg-white max-w-2xl w-full rounded-2xl shadow-2xl overflow-hidden border border-gray-200">
+            <!-- Certificate Header -->
+            <div class="bg-emerald-700 text-white p-8 text-center relative">
+                <!-- Watermark -->
+                <i class="fa-solid fa-award absolute opacity-10 text-9xl top-4 right-8"></i>
+                <img id="result-logo" src="https://placehold.co/100x100/047857/FFFFFF?text=NU" alt="Logo" class="w-20 h-20 rounded-full mx-auto border-4 border-white bg-white mb-4 shadow-lg object-cover">
+                <h1 class="text-3xl font-bold mb-1">HASIL PENILAIAN TENGAH SEMESTER</h1>
+                <h2 class="text-xl text-emerald-100 mb-1">Bahasa Inggris - Kelas IX</h2>
+                <h3 class="text-md text-emerald-200">MTs. Mu'allimin NU Kota Malang</h3>
+            </div>
+            
+            <div class="p-8">
+                <div class="grid grid-cols-2 gap-y-4 text-gray-700 text-lg border-b border-gray-200 pb-6 mb-6">
+                    <div class="font-medium text-gray-500">Nama Siswa:</div>
+                    <div id="res-name" class="font-bold text-right uppercase"></div>
+                    
+                    <div class="font-medium text-gray-500">Kelas:</div>
+                    <div id="res-class" class="font-bold text-right"></div>
+                    
+                    <div class="font-medium text-gray-500">No. Presensi:</div>
+                    <div id="res-presensi" class="font-bold text-right"></div>
+                    
+                    <div class="font-medium text-gray-500">Tanggal Ujian:</div>
+                    <div id="res-date" class="font-bold text-right"></div>
+                </div>
+
+                <div class="flex flex-col items-center justify-center py-6">
+                    <p class="text-gray-500 text-sm font-bold uppercase tracking-wider mb-2">Nilai Akhir</p>
+                    <div id="res-score" class="text-8xl font-black text-emerald-600 drop-shadow-sm mb-4">95</div>
+                    <div id="res-status" class="px-6 py-2 rounded-full text-lg font-bold"></div>
+                    <p class="text-sm text-gray-400 mt-3">KKM: 80</p>
+                </div>
+            </div>
+
+            <div class="bg-gray-50 p-6 border-t border-gray-200 flex justify-between items-center no-print">
+                <button onclick="location.reload()" class="text-gray-600 hover:text-gray-900 font-medium px-4 py-2"><i class="fa-solid fa-house mr-2"></i>Kembali Beranda</button>
+                <button onclick="downloadResult()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-3 rounded-lg shadow transition"><i class="fa-solid fa-download mr-2"></i>Unduh Hasil (PDF)</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Custom Modal for Alerts -->
+    <div id="custom-modal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm transition-opacity duration-300 opacity-0">
+        <div id="custom-modal-content" class="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4 transform scale-95 transition-transform duration-300">
+            <div class="text-center">
+                <div id="modal-icon" class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-emerald-100 mb-4">
+                    <i class="fa-solid fa-check text-2xl text-emerald-600"></i>
+                </div>
+                <h3 id="modal-title" class="text-lg font-bold text-gray-900 mb-2">Title</h3>
+                <p id="modal-desc" class="text-sm text-gray-500 mb-6">Description</p>
+                <button onclick="closeModal()" id="modal-btn" class="w-full inline-flex justify-center rounded-lg border border-transparent bg-emerald-600 px-4 py-3 text-base font-medium text-white shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 sm:text-sm transition">Mengerti</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Core Data & State ---
+        const CONSTANTS = {
+            KKM: 80,
+            TIME_LIMIT: 90 * 60, // 90 minutes in seconds
+            MAX_ATTEMPTS: 3,
+            TOTAL_QUESTIONS: 35
+        };
+
+        let state = {
+            user: null, // null, {role: 'admin'}, or {role: 'student', name, class, presensi}
+            timer: CONSTANTS.TIME_LIMIT,
+            interval: null,
+            isAdminTest: false
+        };
+
+        // --- Question Generation & Data Structure ---
+        // Generating robust dataset fulfilling the criteria: 15 MCQ, 15 Complex, 5 Matching
+        const generateDefaultQuestions = () => {
+            let q = [];
+            // Section 1: Pilihan Ganda (1-15) - Radio (Topic: Fauna & Trips)
+            const pgTextFauna = [
+                "Which endemic animal from Indonesia is known as the largest living lizard in the world?",
+                "The Orangutan is a great ape native to the rainforests of...",
+                "The Maleo bird, endemic to Sulawesi, is unique because it...",
+                "The Babirusa has distinct physical features, mainly its...",
+                "Anoa is often referred to as a midget buffalo. Where is its natural habitat?",
+                "Which bird is considered the mascot of Papua and is known as the 'Bird of Paradise'?",
+                "What is the main threat to the existence of the Sumatran Tiger?"
+            ];
+            const pgTextTrips = [
+                "Sarah: I am planning to visit Mount Bromo next holiday.\nJohn: That's a great idea! You should prepare warm clothes because...\nWhat is the best completion?",
+                "When booking a flight ticket online, what essential information do you need to input first?",
+                "What is the definition of an 'Itinerary' in taking trips?",
+                "Receptionist: Welcome to Garuda Hotel. How may I help you?\nGuest: ...\nWhich response is most appropriate?",
+                "If you want to travel from Jakarta to Bali quickly, the best mode of transportation is...",
+                "Which of the following is a famous tourist destination in Nusa Tenggara Timur known for its specific fauna?",
+                "A 'round-trip' ticket means that you...",
+                "Tour guide: 'Please keep your belongings secure and do not litter in the temple area.'\nThe guide is expressing..."
+            ];
+
+            let idCounter = 1;
+            
+            // Generate 15 Pilihan Ganda
+            let pgAll = [...pgTextFauna, ...pgTextTrips];
+            pgAll.forEach((text, i) => {
+                let options = [];
+                let answer = 0;
+                
+                // Assigning some pseudo-contextual options based on typical context
+                if(text.includes("Komodo") || text.includes("lizard")) {
+                    options = ["Komodo Dragon", "Iguana", "Chameleon", "Monitor Lizard"]; answer = 0;
+                } else if(text.includes("Orangutan")) {
+                    options = ["Java and Bali", "Sumatra and Borneo", "Sulawesi and Maluku", "Papua"]; answer = 1;
+                } else if(text.includes("Maleo")) {
+                    options = ["lays eggs in hot sand", "cannot fly", "builds huge nests in trees", "is active only at night"]; answer = 0;
+                } else if(text.includes("Babirusa")) {
+                    options = ["long tail", "large ears", "tusks curving backward", "striped fur"]; answer = 2;
+                } else if(text.includes("Anoa")) {
+                    options = ["Sumatra", "Java", "Sulawesi", "Kalimantan"]; answer = 2;
+                } else if(text.includes("Paradise")) {
+                    options = ["Cendrawasih", "Jalak Bali", "Elang Jawa", "Kakaktua"]; answer = 0;
+                } else if(text.includes("Sumatran Tiger")) {
+                    options = ["Climate change", "Deforestation and poaching", "Overpopulation", "Lack of prey"]; answer = 1;
+                } else if(text.includes("Bromo")) {
+                    options = ["the weather is very hot", "it is freezing cold there", "it rains every day", "the sun shines brightly"]; answer = 1;
+                } else if(text.includes("flight ticket")) {
+                    options = ["Seat number", "Departure and destination cities", "Food preference", "Baggage weight"]; answer = 1;
+                } else if(text.includes("Itinerary")) {
+                    options = ["A list of souvenirs", "A detailed plan for a journey", "A travel insurance document", "A hotel booking receipt"]; answer = 1;
+                } else if(text.includes("Receptionist")) {
+                    options = ["I want to buy a ticket.", "I have a reservation under the name Budi.", "Where is the nearest restaurant?", "I am just looking around."]; answer = 1;
+                } else if(text.includes("transportation")) {
+                    options = ["Ship", "Bus", "Train", "Airplane"]; answer = 3;
+                } else if(text.includes("Nusa Tenggara Timur")) {
+                    options = ["Tanjung Puting", "Ujung Kulon", "Komodo National Park", "Way Kambas"]; answer = 2;
+                } else if(text.includes("round-trip")) {
+                    options = ["travel to multiple cities", "buy a ticket to go and return", "travel in a group", "travel by land"]; answer = 1;
+                } else if(text.includes("Tour guide")) {
+                    options = ["a complaint", "an invitation", "an instruction/warning", "an apology"]; answer = 2;
+                }
+
+                q.push({
+                    id: idCounter++, type: 'mcq', topic: (i < 7 ? 'Fauna' : 'Trips'),
+                    text: text, options: options, answer: answer
+                });
+            });
+
+            // Section 2: Pilihan Ganda Kompleks (16-30) - Checkbox (Topic: Fauna & Trips)
+            // User must select ALL correct statements.
+            const pgkData = [
+                // Fauna
+                { t: "Based on texts about the Komodo Dragon, which of the following statements are TRUE? (Select all that apply)", 
+                  o: ["They have venomous saliva.", "They are herbivores.", "They are native to Indonesia.", "They can run very fast for short distances."], a: [0, 2, 3] },
+                { t: "Which features correctly describe the Orangutan? (Select all that apply)", 
+                  o: ["They build sleeping nests in trees.", "They have red-orange fur.", "They live in large social herds.", "They are critically endangered."], a: [0, 1, 3] },
+                { t: "Identify the correct facts about the Sumatran Elephant. (Select all that apply)", 
+                  o: ["It is smaller than the African elephant.", "It has smaller ears compared to African elephants.", "It only eats meat.", "It is often involved in human-wildlife conflicts due to habitat loss."], a: [0, 1, 3] },
+                { t: "Regarding the Cendrawasih bird, which statements are accurate?", 
+                  o: ["Only males have highly elaborate and colorful feathers.", "They perform intricate mating dances.", "They are mostly found in Sumatra.", "They are protected by Indonesian law."], a: [0, 1, 3] },
+                { t: "Which of the following animals are endemic to Sulawesi? (Select all that apply)", 
+                  o: ["Anoa", "Babirusa", "Javan Rhino", "Tarsier"], a: [0, 1, 3] },
+                { t: "Threats to Indonesian endemic fauna include... (Select all that apply)", 
+                  o: ["Habitat destruction", "Illegal wildlife trade", "Strict conservation laws", "Forest fires"], a: [0, 1, 3] },
+                { t: "Which actions contribute to fauna conservation? (Select all that apply)", 
+                  o: ["Buying products made from endangered animal parts", "Supporting national parks", "Reporting illegal hunting", "Adopting wild animals as pets"], a: [1, 2] },
+                // Trips
+                { t: "When preparing for a camping trip in the mountains, what essential items should you bring? (Select all that apply)", 
+                  o: ["Tent", "Sleeping bag", "High heels", "Flashlight"], a: [0, 1, 3] },
+                { t: "Which activities are commonly done during a beach vacation? (Select all that apply)", 
+                  o: ["Snorkeling", "Snowboarding", "Sunbathing", "Building sandcastles"], a: [0, 2, 3] },
+                { t: "What documents are generally required for international travel? (Select all that apply)", 
+                  o: ["Passport", "Visa (for certain countries)", "Library card", "Flight ticket"], a: [0, 1, 3] },
+                { t: "Read the dialogue snippet: \nGuide: 'We will visit the museum at 9 AM, then have lunch at 12 PM, and finally go to the traditional market at 3 PM.'\nWhat can be inferred? (Select all that apply)", 
+                  o: ["The tour includes three main activities.", "Lunch happens before visiting the museum.", "The last destination is the traditional market.", "The itinerary spans from morning to afternoon."], a: [0, 2, 3] },
+                { t: "Benefits of traveling and taking trips include... (Select all that apply)", 
+                  o: ["Experiencing new cultures", "Increasing stress", "Trying local cuisines", "Creating memorable experiences"], a: [0, 2, 3] },
+                { t: "When booking accommodation online, what features should you check? (Select all that apply)", 
+                  o: ["Guest reviews", "Proximity to tourist spots", "The color of the receptionist's uniform", "Cancellation policy"], a: [0, 1, 3] },
+                { t: "Which phrases are useful when asking for directions during a trip? (Select all that apply)", 
+                  o: ["Excuse me, could you tell me the way to...", "I want to buy a coffee.", "How do I get to...", "Is there a pharmacy near here?"], a: [0, 2, 3] },
+                { t: "Things you should NOT do while visiting a natural reserve... (Select all that apply)", 
+                  o: ["Littering", "Taking photos from a distance", "Feeding wild animals", "Vandalizing trees or rocks"], a: [0, 2, 3] }
+            ];
+
+            pgkData.forEach((item) => {
+                q.push({
+                    id: idCounter++, type: 'complex',
+                    text: item.t, options: item.o, answer: item.a
+                });
+            });
+
+            // Section 3: Menjodohkan (31-35) - Dropdown (Topic: Fauna & Trips)
+            // Each question is one premise, the student picks the matching response from options.
+            const matchPremises = [
+                "A large primate found in Kalimantan, known for its reddish hair.", // Orangutan
+                "A document containing a detailed travel plan.", // Itinerary
+                "A rare bird from Papua known for its beautiful feathers.", // Cendrawasih
+                "A place where tourists temporarily stay during their trip.", // Hotel/Accommodation
+                "The largest living lizard, endemic to East Nusa Tenggara." // Komodo Dragon
+            ];
+            const matchOptions = [
+                "Orangutan", "Hotel", "Komodo Dragon", "Cendrawasih", "Itinerary"
+            ];
+            // Answers map to the index in matchOptions
+            const matchAnswers = [0, 4, 3, 1, 2];
+
+            matchPremises.forEach((premise, index) => {
+                q.push({
+                    id: idCounter++, type: 'match',
+                    text: "Match the following description with the correct term:\n" + premise,
+                    options: matchOptions, // same options for all
+                    answer: matchAnswers[index]
+                });
+            });
+
+            return q;
+        };
+
+        // --- STREAMING_CHUNK:Local Storage & Initialization ---
+        const initData = () => {
+            // Load or initialize questions
+            if (!localStorage.getItem('pts_questions')) {
+                localStorage.setItem('pts_questions', JSON.stringify(generateDefaultQuestions()));
+            }
+            
+            // Load or initialize logo
+            if (!localStorage.getItem('pts_logo')) {
+                localStorage.setItem('pts_logo', 'https://placehold.co/100x100/047857/FFFFFF?text=NU');
+            }
+            
+            // Load or initialize admin password
+            if (!localStorage.getItem('pts_admin_pwd')) {
+                localStorage.setItem('pts_admin_pwd', 'admin');
+            }
+
+            // Initialize student attempts object if not exists
+            if (!localStorage.getItem('pts_attempts')) {
+                localStorage.setItem('pts_attempts', JSON.stringify({}));
+            }
+
+            applyLogo();
+        };
+
+        const getQuestions = () => JSON.parse(localStorage.getItem('pts_questions'));
+        
+        const applyLogo = () => {
+            const logoUrl = localStorage.getItem('pts_logo');
+            document.getElementById('header-logo').src = logoUrl;
+            document.getElementById('main-logo').src = logoUrl;
+            document.getElementById('result-logo').src = logoUrl;
+            document.getElementById('preview-logo-edit').src = logoUrl;
+            document.getElementById('input-logo-url').value = logoUrl;
+        };
+
+        // --- STREAMING_CHUNK:Custom Modal Logic ---
+        const showModal = (title, desc, type = 'info', onConfirm = null) => {
+            const modal = document.getElementById('custom-modal');
+            const content = document.getElementById('custom-modal-content');
+            const icon = document.getElementById('modal-icon');
+            
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-desc').innerHTML = desc; // allow HTML like <br>
+            
+            // Styling based on type
+            let iconHtml = '';
+            if (type === 'success') {
+                icon.className = 'mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-emerald-100 mb-4';
+                iconHtml = '<i class="fa-solid fa-check text-2xl text-emerald-600"></i>';
+            } else if (type === 'error') {
+                icon.className = 'mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4';
+                iconHtml = '<i class="fa-solid fa-xmark text-2xl text-red-600"></i>';
+            } else if (type === 'warning') {
+                icon.className = 'mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-yellow-100 mb-4';
+                iconHtml = '<i class="fa-solid fa-exclamation text-2xl text-yellow-600"></i>';
+            } else {
+                icon.className = 'mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-blue-100 mb-4';
+                iconHtml = '<i class="fa-solid fa-info text-2xl text-blue-600"></i>';
+            }
+            icon.innerHTML = iconHtml;
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            // Animation
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.classList.add('opacity-100');
+                content.classList.remove('scale-95');
+                content.classList.add('scale-100');
+            }, 10);
+
+            // Handle callback
+            const btn = document.getElementById('modal-btn');
+            const btnClone = btn.cloneNode(true);
+            btn.parentNode.replaceChild(btnClone, btn);
+            btnClone.addEventListener('click', () => {
+                closeModal();
+                if(onConfirm) onConfirm();
+            });
+        };
+
+        const closeModal = () => {
+            const modal = document.getElementById('custom-modal');
+            const content = document.getElementById('custom-modal-content');
+            
+            modal.classList.remove('opacity-100');
+            modal.classList.add('opacity-0');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        };
+
+        // --- STREAMING_CHUNK:UI Navigation & Login Logic ---
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                // Reset styles
+                document.querySelectorAll('.tab-btn').forEach(b => {
+                    b.classList.remove('text-emerald-700', 'border-emerald-600', 'bg-emerald-50');
+                    b.classList.add('text-gray-500', 'border-transparent');
+                });
+                // Set active style
+                btn.classList.remove('text-gray-500', 'border-transparent');
+                btn.classList.add('text-emerald-700', 'border-emerald-600', 'bg-emerald-50');
+                
+                // Toggle forms
+                document.querySelectorAll('.login-form').forEach(f => f.classList.add('hidden'));
+                document.getElementById(btn.dataset.target).classList.remove('hidden');
+            });
+        });
+
+        document.getElementById('student-login').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('stud-name').value.trim();
+            const kelas = document.getElementById('stud-class').value;
+            const presensi = document.getElementById('stud-presensi').value.trim();
+
+            if(!name || !kelas || !presensi) return;
+
+            // Generate unique student key
+            const studentKey = `${kelas.replace(/\s/g, '')}_${presensi}`;
+            let attemptsData = JSON.parse(localStorage.getItem('pts_attempts'));
+
+            if (!attemptsData[studentKey]) {
+                attemptsData[studentKey] = 0;
+            }
+
+            if (attemptsData[studentKey] >= CONSTANTS.MAX_ATTEMPTS) {
+                showModal('Akses Ditolak', 'Anda telah mencapai batas maksimal pengerjaan (3 kali).', 'error');
+                return;
+            }
+
+            // Increment attempt immediately upon login
+            attemptsData[studentKey] += 1;
+            localStorage.setItem('pts_attempts', JSON.stringify(attemptsData));
+
+            state.user = { role: 'student', name, class: kelas, presensi, key: studentKey, attempt: attemptsData[studentKey] };
+            
+            showModal('Login Berhasil', `Selamat datang, ${name}. Ini adalah percobaan ke-${attemptsData[studentKey]} dari ${CONSTANTS.MAX_ATTEMPTS}.`, 'success', () => {
+                showView('exam-screen');
+                setupHeader();
+            });
+        });
+
+        document.getElementById('admin-login').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const user = document.getElementById('adm-user').value.trim();
+            const pass = document.getElementById('adm-pass').value;
+            const correctPass = localStorage.getItem('pts_admin_pwd');
+
+            if (user === 'admin' && pass === correctPass) {
+                state.user = { role: 'admin' };
+                showView('admin-screen');
+                setupHeader();
+                renderAdminQuestions();
+                document.getElementById('admin-login').reset();
+            } else {
+                showModal('Login Gagal', 'Username atau Password admin salah!', 'error');
+            }
+        });
+
+        const logout = () => {
+            if(state.interval) clearInterval(state.interval);
+            state = { user: null, timer: CONSTANTS.TIME_LIMIT, interval: null, isAdminTest: false };
+            document.getElementById('student-login').reset();
+            showView('login-screen');
+            setupHeader();
+            // hide result screen if visible
+            document.getElementById('result-screen').classList.add('hidden');
+        };
+
+        const showView = (viewId) => {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('admin-screen').classList.add('hidden');
+            document.getElementById('exam-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.add('hidden');
+            
+            // Resets for exam
+            document.getElementById('exam-instructions').classList.remove('hidden');
+            document.getElementById('exam-questions-container').classList.add('hidden');
+            
+            document.getElementById(viewId).classList.remove('hidden');
+        };
+
+        const setupHeader = () => {
+            const btnLogout = document.getElementById('btn-logout');
+            const userInfo = document.getElementById('header-user-info');
+            const timer = document.getElementById('header-timer-container');
+
+            if (!state.user) {
+                btnLogout.classList.add('hidden');
+                userInfo.classList.add('hidden');
+                timer.classList.add('hidden');
+            } else {
+                btnLogout.classList.remove('hidden');
+                if (state.user.role === 'student' || state.isAdminTest) {
+                    userInfo.classList.remove('hidden');
+                    document.getElementById('student-name-display').textContent = state.user.name;
+                    document.getElementById('student-class-display').textContent = `${state.user.class} (No. ${state.user.presensi})`;
+                } else {
+                    userInfo.classList.remove('hidden');
+                    document.getElementById('student-name-display').textContent = 'Administrator';
+                    document.getElementById('student-class-display').textContent = 'Panel Guru';
+                }
+            }
+        };
+
+        // --- STREAMING_CHUNK:Admin Dashboard Logic ---
+        const switchAdminTab = (tabId) => {
+            document.querySelectorAll('.admin-tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+            
+            document.querySelectorAll('.admin-tab-btn').forEach(btn => {
+                btn.classList.remove('bg-emerald-100', 'text-emerald-800');
+                btn.classList.add('text-gray-600');
+            });
+            event.currentTarget.classList.remove('text-gray-600', 'hover:bg-gray-100');
+            event.currentTarget.classList.add('bg-emerald-100', 'text-emerald-800');
+        };
+
+        const renderAdminQuestions = () => {
+            const container = document.getElementById('admin-question-list');
+            const questions = getQuestions();
+            container.innerHTML = '';
+
+            questions.forEach((q, index) => {
+                const qDiv = document.createElement('div');
+                qDiv.className = 'border border-gray-200 rounded-lg p-4 bg-white hover:shadow-md transition';
+                
+                let typeLabel = '';
+                let typeColor = '';
+                if(q.type === 'mcq') { typeLabel = 'Pilihan Ganda'; typeColor = 'bg-blue-100 text-blue-800'; }
+                else if(q.type === 'complex') { typeLabel = 'PG Kompleks'; typeColor = 'bg-purple-100 text-purple-800'; }
+                else { typeLabel = 'Menjodohkan'; typeColor = 'bg-orange-100 text-orange-800'; }
+
+                // Very basic inline display for admin to review
+                qDiv.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="font-bold text-gray-700">Soal No. ${index + 1}</span>
+                        <span class="text-xs px-2 py-1 rounded font-semibold ${typeColor}">${typeLabel}</span>
+                    </div>
+                    <div class="text-gray-800 text-sm mb-3 font-medium whitespace-pre-wrap">${q.text}</div>
+                    <div class="text-xs text-gray-500 bg-gray-50 p-2 rounded">
+                        <strong>Kunci Jawaban:</strong> 
+                        ${formatAnswerAdmin(q)}
+                    </div>
+                    <div class="mt-3 text-right">
+                        <button onclick="editQuestionPrompt(${index})" class="text-emerald-600 hover:text-emerald-800 text-sm font-semibold"><i class="fa-solid fa-pen-to-square mr-1"></i>Edit Soal (Teks)</button>
+                    </div>
+                `;
+                container.appendChild(qDiv);
+            });
+        };
+
+        const formatAnswerAdmin = (q) => {
+            if (q.type === 'mcq' || q.type === 'match') {
+                return q.options[q.answer];
+            } else if (q.type === 'complex') {
+                return q.answer.map(aIndex => q.options[aIndex]).join('; ');
+            }
+        };
+
+        // Simplified edit for prototype: Prompt for new text
+        const editQuestionPrompt = (index) => {
+            const questions = getQuestions();
+            const q = questions[index];
+            const newText = prompt(`Edit Soal No. ${index + 1}:\n(Masukkan teks baru)`, q.text);
+            if (newText !== null && newText.trim() !== "") {
+                questions[index].text = newText;
+                localStorage.setItem('pts_questions', JSON.stringify(questions));
+                renderAdminQuestions();
+                showModal('Berhasil', 'Teks soal berhasil diubah.', 'success');
+            }
+        };
+
+        const saveLogo = () => {
+            const url = document.getElementById('input-logo-url').value.trim();
+            if(url) {
+                localStorage.setItem('pts_logo', url);
+                applyLogo();
+                showModal('Tersimpan', 'Logo berhasil diperbarui.', 'success');
+            }
+        };
+
+        const saveAdminPassword = () => {
+            const p1 = document.getElementById('input-new-pwd').value;
+            const p2 = document.getElementById('input-confirm-pwd').value;
+            if(!p1) return showModal('Error', 'Password tidak boleh kosong.', 'error');
+            if(p1 !== p2) return showModal('Error', 'Konfirmasi password tidak cocok.', 'error');
+            
+            localStorage.setItem('pts_admin_pwd', p1);
+            document.getElementById('input-new-pwd').value = '';
+            document.getElementById('input-confirm-pwd').value = '';
+            showModal('Berhasil', 'Password admin berhasil diubah.', 'success');
+        };
+
+        const testAsStudent = () => {
+            state.isAdminTest = true;
+            state.user = { role: 'student', name: 'Admin (Uji Coba)', class: 'UJI COBA', presensi: '00' };
+            showView('exam-screen');
+            setupHeader();
+        };
+
+        // --- STREAMING_CHUNK:Exam Logic & Rendering ---
+        const startExamTimer = () => {
+            document.getElementById('exam-instructions').classList.add('hidden');
+            document.getElementById('exam-questions-container').classList.remove('hidden');
+            document.getElementById('header-timer-container').classList.remove('hidden');
+            
+            renderExamQuestions();
+            
+            state.timer = CONSTANTS.TIME_LIMIT;
+            updateTimerDisplay();
+            
+            state.interval = setInterval(() => {
+                state.timer--;
+                updateTimerDisplay();
+                if (state.timer <= 0) {
+                    clearInterval(state.interval);
+                    showModal('Waktu Habis', 'Waktu pengerjaan telah habis. Jawaban akan otomatis dikumpulkan.', 'warning', () => {
+                        document.getElementById('exam-form').dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+                    });
+                }
+            }, 1000);
+        };
+
+        const updateTimerDisplay = () => {
+            const minutes = Math.floor(state.timer / 60);
+            const seconds = state.timer % 60;
+            const display = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            document.getElementById('header-timer').textContent = display;
+            
+            if (state.timer < 300) { // last 5 minutes
+                document.getElementById('header-timer-container').classList.add('bg-red-800', 'border-red-600');
+                document.getElementById('header-timer-container').classList.remove('bg-emerald-800', 'border-emerald-600');
+                document.getElementById('header-timer').classList.add('text-red-100');
+                document.getElementById('header-timer').classList.remove('text-emerald-100');
+            }
+        };
+
+        const renderExamQuestions = () => {
+            const container = document.getElementById('questions-wrapper');
+            container.innerHTML = '';
+            const questions = getQuestions();
+
+            // Sections Titles
+            let hasComplex = false;
+            let hasMatch = false;
+
+            questions.forEach((q, index) => {
+                const num = index + 1;
+                
+                // Add Section Headers for aesthetics and clarity based on question index
+                if(num === 1) {
+                    container.insertAdjacentHTML('beforeend', `<div class="bg-blue-50 border-l-4 border-blue-500 p-3 mb-4 rounded"><h3 class="font-bold text-blue-800">I. Pilihan Ganda</h3><p class="text-sm text-blue-600">Pilih SATU jawaban yang paling tepat.</p></div>`);
+                } else if (num === 16 && !hasComplex) {
+                    hasComplex = true;
+                    container.insertAdjacentHTML('beforeend', `<div class="bg-purple-50 border-l-4 border-purple-500 p-3 mb-4 mt-8 rounded"><h3 class="font-bold text-purple-800">II. Pilihan Ganda Kompleks</h3><p class="text-sm text-purple-600">Pilih SEMUA jawaban yang benar (jawaban bisa lebih dari satu).</p></div>`);
+                } else if (num === 31 && !hasMatch) {
+                    hasMatch = true;
+                    container.insertAdjacentHTML('beforeend', `<div class="bg-orange-50 border-l-4 border-orange-500 p-3 mb-4 mt-8 rounded"><h3 class="font-bold text-orange-800">III. Menjodohkan</h3><p class="text-sm text-orange-600">Pilih pasangan yang paling sesuai untuk setiap pernyataan.</p></div>`);
+                }
+
+                const qCard = document.createElement('div');
+                qCard.className = 'bg-white p-5 md:p-6 rounded-xl border border-gray-200 shadow-sm';
+                
+                let optionsHtml = '';
+                
+                if (q.type === 'mcq') {
+                    q.options.forEach((opt, oIdx) => {
+                        const letter = String.fromCharCode(65 + oIdx); // A, B, C, D
+                        optionsHtml += `
+                            <label class="flex items-start cursor-pointer group">
+                                <input type="radio" name="q_${q.id}" value="${oIdx}" class="peer sr-only custom-radio" required>
+                                <div class="w-6 h-6 rounded-full border-2 border-gray-300 mr-3 flex items-center justify-center text-xs font-bold text-gray-500 group-hover:border-emerald-500 peer-checked:bg-emerald-500 peer-checked:border-emerald-500 peer-checked:text-white transition flex-shrink-0 mt-0.5">
+                                    ${letter}
+                                </div>
+                                <span class="text-gray-700 peer-checked:text-gray-900 peer-checked:font-medium leading-relaxed">${opt}</span>
+                            </label>
+                        `;
+                    });
+                } else if (q.type === 'complex') {
+                    q.options.forEach((opt, oIdx) => {
+                        const letter = String.fromCharCode(65 + oIdx);
+                        optionsHtml += `
+                            <label class="flex items-start cursor-pointer group">
+                                <input type="checkbox" name="q_${q.id}[]" value="${oIdx}" class="peer sr-only custom-checkbox">
+                                <div class="w-6 h-6 rounded border-2 border-gray-300 mr-3 flex items-center justify-center text-xs font-bold text-gray-500 group-hover:border-emerald-500 transition flex-shrink-0 mt-0.5">
+                                    ${letter}
+                                </div>
+                                <span class="text-gray-700 peer-checked:text-gray-900 peer-checked:font-medium leading-relaxed">${opt}</span>
+                            </label>
+                        `;
+                    });
+                } else if (q.type === 'match') {
+                    let selectOptions = `<option value="" disabled selected>-- Pilih Pasangan --</option>`;
+                    q.options.forEach((opt, oIdx) => {
+                        selectOptions += `<option value="${oIdx}">${opt}</option>`;
+                    });
+                    optionsHtml = `
+                        <div class="mt-4">
+                            <select name="q_${q.id}" required class="w-full md:w-2/3 px-4 py-3 rounded-lg border-2 border-gray-300 focus:border-emerald-500 focus:ring-0 outline-none text-gray-700 bg-gray-50 transition shadow-sm font-medium">
+                                ${selectOptions}
+                            </select>
+                        </div>
+                    `;
+                }
+
+                qCard.innerHTML = `
+                    <div class="flex items-start mb-4 gap-3">
+                        <div class="bg-emerald-100 text-emerald-800 font-bold rounded-lg w-8 h-8 flex items-center justify-center flex-shrink-0 text-sm">${num}</div>
+                        <div class="text-gray-800 text-base md:text-lg font-medium leading-relaxed whitespace-pre-wrap">${q.text}</div>
+                    </div>
+                    <div class="pl-11 space-y-3">
+                        ${optionsHtml}
+                    </div>
+                `;
+                container.appendChild(qCard);
+            });
+        };
+
+        // --- STREAMING_CHUNK:Scoring & Result Logic ---
+        const submitExam = (e) => {
+            e.preventDefault();
+            
+            // For complex MCQ, check if at least one checkbox is selected for the group to avoid html validation block, 
+            // but standard HTML forms don't validate checkbox groups well natively without custom JS. 
+            // The prompt says 15 complex. We assume user can leave it blank if they want, but a warning is good.
+            
+            const form = document.getElementById('exam-form');
+            const formData = new FormData(form);
+            const questions = getQuestions();
+            
+            let totalScore = 0;
+            let maxScore = questions.length; // Max score = 35 based on items. Then scale to 100.
+            let correctItems = 0;
+
+            questions.forEach(q => {
+                if (q.type === 'mcq' || q.type === 'match') {
+                    const userAns = formData.get(`q_${q.id}`);
+                    if (userAns !== null && parseInt(userAns) === q.answer) {
+                        correctItems++;
+                    }
+                } else if (q.type === 'complex') {
+                    const userAnswers = formData.getAll(`q_${q.id}[]`).map(v => parseInt(v));
+                    // Strict scoring: Must exactly match the correct array
+                    const sortedUser = userAnswers.sort();
+                    const sortedCorrect = [...q.answer].sort();
+                    
+                    if (sortedUser.length === sortedCorrect.length && sortedUser.every((val, index) => val === sortedCorrect[index])) {
+                        correctItems++;
+                    }
+                }
+            });
+
+            // Calculate final score scaled to 100, round to 1 decimal if needed, but let's use Math.round
+            const finalScore = Math.round((correctItems / CONSTANTS.TOTAL_QUESTIONS) * 100);
+            
+            // Stop timer
+            if(state.interval) clearInterval(state.interval);
+            
+            showResultScreen(finalScore);
+        };
+
+        const showResultScreen = (score) => {
+            document.getElementById('exam-screen').classList.add('hidden');
+            document.getElementById('header-timer-container').classList.add('hidden');
+            const resultScreen = document.getElementById('result-screen');
+            resultScreen.classList.remove('hidden');
+
+            document.getElementById('res-name').textContent = state.user.name;
+            document.getElementById('res-class').textContent = state.user.class;
+            document.getElementById('res-presensi').textContent = state.user.presensi;
+            
+            const today = new Date();
+            document.getElementById('res-date').textContent = today.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            
+            const scoreEl = document.getElementById('res-score');
+            const statusEl = document.getElementById('res-status');
+            
+            scoreEl.textContent = score;
+            
+            if (score >= CONSTANTS.KKM) {
+                statusEl.textContent = "TUNTAS (LULUS)";
+                statusEl.className = "px-6 py-2 rounded-full text-lg font-bold bg-green-100 text-green-800 border border-green-200";
+            } else {
+                statusEl.textContent = "TIDAK TUNTAS (REMIDIAL)";
+                statusEl.className = "px-6 py-2 rounded-full text-lg font-bold bg-red-100 text-red-800 border border-red-200";
+            }
+        };
+
+        const downloadResult = () => {
+            window.print();
+        };
+
+        // Initialize on load
+        window.onload = () => {
+            initData();
+        };
+
+    </script>
+</body>
+</html>
